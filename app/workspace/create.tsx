@@ -74,6 +74,12 @@ export default function PropertyCreateScreen() {
           </Link>
           <Button onPress={handleSubscribe} title="Payment" />
           <Button title="dark-light" onPress={() => toggleColorScheme()} />
+          <Link href="/auth/(login)">
+            <Text>profile</Text>
+          </Link>
+          <Link href="/auth">
+            <Text>index auth</Text>
+          </Link>
         </View>
       </View>
     </SafeAreaView>

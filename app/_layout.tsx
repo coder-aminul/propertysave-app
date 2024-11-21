@@ -11,6 +11,7 @@ import '../global.css';
 
 import { Provider } from 'react-redux';
 
+import { AuthProvider } from '~/context/AuthContext';
 import { cn } from '~/lib/cn';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import store from '~/store/store';
@@ -26,23 +27,27 @@ export default function RootLayout() {
   const { colorScheme, isDarkColorScheme } = useColorScheme();
 
   return (
-    <StripeProvider publishableKey="pk_test_51NCJw9AuSN43C26O1f8U5X1niKaHqilkHwfJUbmux0qVANvFfc1CdAZNF9FceZfHekHBhuUSm5WnfmSiR6Nw80KU008Kx2G5N7">
-      <Provider store={store}>
-        <StatusBar
-          key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
-          style={isDarkColorScheme ? 'light' : 'dark'}
-        />
+    <>
+      <StripeProvider publishableKey="pk_test_51NCJw9AuSN43C26O1f8U5X1niKaHqilkHwfJUbmux0qVANvFfc1CdAZNF9FceZfHekHBhuUSm5WnfmSiR6Nw80KU008Kx2G5N7">
+        <Provider store={store}>
+          <AuthProvider>
+            <StatusBar
+              key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
+              style={isDarkColorScheme ? 'light' : 'dark'}
+            />
 
-        <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
-          <NavThemeProvider value={NAV_THEME[colorScheme]}>
-            <Stack screenOptions={SCREEN_OPTIONS}>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="+not-found" />
-            </Stack>
-          </NavThemeProvider>
-        </KeyboardProvider>
-      </Provider>
-    </StripeProvider>
+            <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
+              <NavThemeProvider value={NAV_THEME[colorScheme]}>
+                <Stack screenOptions={SCREEN_OPTIONS}>
+                  <Stack.Screen name="index" options={{ headerShown: false }} />
+                  <Stack.Screen name="+not-found" />
+                </Stack>
+              </NavThemeProvider>
+            </KeyboardProvider>
+          </AuthProvider>
+        </Provider>
+      </StripeProvider>
+    </>
   );
 }
 

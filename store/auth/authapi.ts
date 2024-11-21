@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 
 import { apiSlice } from '../api/apiSlice';
+// eslint-disable-next-line import/order
 import { userLoggedIn } from './authSlice';
 
 // eslint-disable-next-line import/order

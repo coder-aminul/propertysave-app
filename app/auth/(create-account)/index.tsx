@@ -14,6 +14,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
+import { useAuth } from '~/hooks/useAuth';
 import { registationinfo } from '~/store/auth/authSlice';
 
 const LOGO_SOURCE = {
@@ -26,6 +27,13 @@ export default function InfoScreen() {
     'first-name' | 'last-name' | 'companyname' | 'address' | 'license' | 'identificationno' | null
   >(null);
   const dispatch = useDispatch();
+  const auth = useAuth();
+
+  React.useEffect(() => {
+    if (auth) {
+      return router.replace('/workspace');
+    }
+  }, [auth]);
 
   const initailstate = {
     first_name: '',

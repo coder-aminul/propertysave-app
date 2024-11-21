@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import * as React from 'react';
 import { Image, Platform, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,6 +7,7 @@ import { AlertAnchor } from '~/components/nativewindui/Alert';
 import { AlertRef } from '~/components/nativewindui/Alert/types';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
+import { useAuth } from '~/hooks/useAuth';
 
 const LOGO_SOURCE = {
   uri: 'https://api.marayaglobal.xyz/uploads/logo-short-light-icon.401a77f0-1731347415919.png',
@@ -18,6 +19,12 @@ const GOOGLE_SOURCE = {
 
 export default function AuthIndexScreen() {
   const alertRef = React.useRef<AlertRef>(null);
+  const auth = useAuth();
+  React.useEffect(() => {
+    if (auth) {
+      return router.replace('/workspace');
+    }
+  }, [auth]);
   return (
     <>
       <SafeAreaView style={{ flex: 1 }}>

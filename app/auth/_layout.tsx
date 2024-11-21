@@ -1,10 +1,19 @@
-import { Link, Stack } from 'expo-router';
+import { Link, router, Stack } from 'expo-router';
+import React from 'react';
 import { Platform } from 'react-native';
 
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
+import { useAuth } from '~/hooks/useAuth';
 
 export default function AuthLayout() {
+  const auth = useAuth();
+
+  React.useEffect(() => {
+    if (auth) {
+      return router.replace('/workspace');
+    }
+  }, [auth]);
   return (
     <Stack screenOptions={SCREEN_OPTIONS}>
       <Stack.Screen name="index" options={{ headerShown: false }} />

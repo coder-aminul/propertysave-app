@@ -1,6 +1,15 @@
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
+import React from 'react';
+
+import { useAuth } from '~/hooks/useAuth';
 
 export default function CreateAccountLayout() {
+  const auth = useAuth();
+  React.useEffect(() => {
+    if (auth) {
+      return router.replace('/workspace');
+    }
+  }, [auth]);
   return (
     <>
       <Stack.Screen
