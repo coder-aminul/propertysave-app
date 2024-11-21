@@ -8,10 +8,12 @@ import {
 } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 import { Button } from '~/components/nativewindui/Button';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
+import { useColorScheme } from '~/lib/useColorScheme';
 import { useLoginMutation } from '~/store/auth/authapi';
 import { getValueFor } from '~/utils/secure-store';
 
@@ -20,6 +22,7 @@ const LOGO_SOURCE = {
 };
 
 export default function LoginScreen() {
+  const { colors } = useColorScheme();
   const insets = useSafeAreaInsets();
   const [focusedTextField, setFocusedTextField] = React.useState<'email' | 'password' | null>(null);
   const [login, { isSuccess, isLoading, isError, error }] = useLoginMutation();
@@ -55,7 +58,6 @@ export default function LoginScreen() {
         role: 'company',
       };
       const response = await login(data);
-      console.log(response);
     }
   };
   return (
@@ -156,7 +158,13 @@ export default function LoginScreen() {
         {Platform.OS === 'ios' ? (
           <View className=" px-12 py-4">
             <Button size="lg" onPress={handleSubmit}>
-              <Text>Continue</Text>
+              {isLoading ? (
+                <Text>
+                  Login <ActivityIndicator style={{ paddingLeft: 10 }} color={colors.background} />
+                </Text>
+              ) : (
+                <Text>Continue</Text>
+              )}
             </Button>
           </View>
         ) : (
@@ -169,16 +177,15 @@ export default function LoginScreen() {
               }}>
               <Text className="px-0.5 text-sm text-primary">Create Account</Text>
             </Button>
-            <Button
-              onPress={() => {
-                if (focusedTextField === 'email') {
-                  KeyboardController.setFocusTo('next');
-                  return;
-                }
-                KeyboardController.dismiss();
-                router.replace('/workspace');
-              }}>
-              <Text className="text-sm">{focusedTextField === 'email' ? 'Next' : 'Submit'}</Text>
+            <Button onPress={handleSubmit}>
+              {isLoading ? (
+                <View className="flex flex-row items-center gap-2">
+                  <Text className="text-sm">Login..</Text>
+                  <ActivityIndicator color={colors.background} />
+                </View>
+              ) : (
+                <Text className="text-sm">Submit</Text>
+              )}
             </Button>
           </View>
         )}

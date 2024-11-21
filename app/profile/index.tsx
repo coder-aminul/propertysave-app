@@ -3,6 +3,7 @@ import { router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Linking, Platform, View } from 'react-native';
 
+import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 import { Avatar, AvatarFallback } from '~/components/nativewindui/Avatar';
 import { Button } from '~/components/nativewindui/Button';
 import {
@@ -35,7 +36,7 @@ const ESTIMATED_ITEM_SIZE =
 
 export default function Profile() {
   const [userinfo, setUserinfo] = useState<User>();
-  const { data: response, isSuccess } = useGetUserQuery(userinfo?.id);
+  const { data: response, isSuccess, isLoading } = useGetUserQuery(userinfo?.id);
   const [userdata, setUserdata] = useState<User>();
 
   useEffect(() => {
@@ -95,6 +96,10 @@ export default function Profile() {
       onPress: () => Linking.openURL('#'),
     },
   ];
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
 
   return (
     <>
