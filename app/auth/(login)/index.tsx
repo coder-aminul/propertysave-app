@@ -12,7 +12,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
-import { useLoginMutation } from '~/redux/auth/authapi';
+import { useLoginMutation } from '~/store/auth/authapi';
 import { getValueFor } from '~/utils/secure-store';
 
 const LOGO_SOURCE = {

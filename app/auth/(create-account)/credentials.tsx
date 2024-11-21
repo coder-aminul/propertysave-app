@@ -13,7 +13,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
-import { useSignupMutation } from '~/redux/auth/authapi';
+import { useSignupMutation } from '~/store/auth/authapi';
 
 const LOGO_SOURCE = {
   uri: 'https://api.marayaglobal.xyz/uploads/logo-short-light-icon.401a77f0-1731347415919.png',

@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '~/components/Button';
 import { Text } from '~/components/nativewindui/Text';
-import { useCreateSubscriptionMutation } from '~/redux/payment/payment';
+import { useCreateSubscriptionMutation } from '~/store/payment/payment';
 
 const ROOT_STYLE: ViewStyle = { flex: 1 };
 

@@ -9,7 +9,7 @@ import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
 import { cn } from '~/lib/cn';
-import { useGetUserQuery } from '~/redux/user/userApi';
+import { useGetUserQuery } from '~/store/user/userApi';
 import { User } from '~/types';
 import { getSecureValue } from '~/utils/secure-store';
 

@@ -13,7 +13,7 @@ import { Provider } from 'react-redux';
 
 import { cn } from '~/lib/cn';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
-import store from '~/redux/store';
+import store from '~/store/store';
 import { NAV_THEME } from '~/theme';
 
 export {
