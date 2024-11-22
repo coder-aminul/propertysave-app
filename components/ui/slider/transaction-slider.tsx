@@ -71,21 +71,33 @@ export default function PropertyStatsSlider() {
   // };
 
   const renderItem = ({ item }: { item: TransactionType }) => (
-    <View style={styles.card} className="flex flex-row gap-2">
+    <View
+      style={styles.card}
+      className="ios:dark:bg-gray-800 android:dark:bg-gray-800 flex flex-row gap-2 bg-white">
       <View style={[styles.iconWrapper, { backgroundColor: item.iconWrapperFill }]}>
         <Ionicons name={item.icon} size={32} color="#fff" />
       </View>
       <View>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.amount}>{item.amount}</Text>
-        <Text style={styles.percentage}>{item.percentage}</Text>
-        {item.message && <Text style={styles.message}>{item.message}</Text>}
+        <Text style={styles.title} className="text-black dark:text-white">
+          {item.title}
+        </Text>
+        <Text style={styles.amount} className="text-[#333] dark:text-gray-300">
+          {item.amount}
+        </Text>
+        <Text style={styles.percentage} className="text-[#666] dark:text-gray-300">
+          {item.percentage}
+        </Text>
+        {item.message && (
+          <Text style={styles.message} className="text-[#888] dark:text-gray-300">
+            {item.message}
+          </Text>
+        )}
       </View>
     </View>
   );
 
   return (
-    <View style={styles.container}>
+    <View className="flex-row items-center justify-center p-0">
       {/* <TouchableOpacity onPress={scrollToLeft} style={styles.navButton}>
         <Ionicons name="chevron-back-outline" size={24} color="black" />
       </TouchableOpacity> */}
@@ -97,6 +109,7 @@ export default function PropertyStatsSlider() {
         keyExtractor={(item, index) => `stat-${index}`}
         renderItem={renderItem}
         contentContainerStyle={styles.flatListContent}
+        // className="items-center"
         snapToInterval={width / 1.3}
         decelerationRate="fast"
       />
@@ -124,7 +137,7 @@ const styles = StyleSheet.create({
     width: width / 1.3,
     marginHorizontal: 10,
     padding: 15,
-    backgroundColor: '#fff',
+    // backgroundColor: '#fff',
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -149,16 +162,16 @@ const styles = StyleSheet.create({
   amount: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#333',
+    // color: '#333',
     marginBottom: 5,
   },
   percentage: {
     fontSize: 14,
-    color: '#666',
+    // color: '#666',
     marginBottom: 5,
   },
   message: {
     fontSize: 12,
-    color: '#888',
+    // color: '#888',
   },
 });
