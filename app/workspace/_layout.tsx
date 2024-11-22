@@ -1,9 +1,9 @@
-import { AntDesign } from '@expo/vector-icons';
 import { router, Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Image, Platform } from 'react-native';
 
 import Navigations from '~/components/customs/navigations/navigations';
+import { Avatar, AvatarImage } from '~/components/nativewindui/Avatar';
 import { Button } from '~/components/nativewindui/Button';
 
 export default function WorkSpaceLayout() {
@@ -31,22 +31,51 @@ export default function WorkSpaceLayout() {
   );
 }
 const SCREEN_OPTIONS = {
-  title: '',
   headerShown: true,
   animation: 'ios', // for android
   headerTransparent: Platform.OS === 'ios',
   headerBlurEffect: 'systemMaterial',
-  headerRight: Platform.select({
+  headerLeft: Platform.select({
     ios: () => (
-      <Button className="ios:px-2 mr-3" variant="plain" onPress={() => router.push('/profile')}>
-        {/* <Text className="text-primary">Save</Text> */}
-        <AntDesign size={28} name="user" />
+      <Button className="ios:px-2 ml-2" variant="plain">
+        <Image
+          source={{
+            uri: 'https://api.marayaglobal.xyz/uploads/logo-short-light-icon.401a77f0-1731347415919.png',
+          }}
+          resizeMode="cover" // Options: "contain", "cover", "stretch", etc.
+        />
       </Button>
     ),
     android: () => (
-      <Button className="ios:px-2 mr-2" variant="plain" onPress={() => router.push('/profile')}>
-        {/* <Text className="text-primary">Save</Text> */}
-        <AntDesign size={28} name="user" />
+      <Image
+        source={{
+          uri: 'https://api.marayaglobal.xyz/uploads/logo-short-light-icon.401a77f0-1731347415919.png',
+        }}
+        resizeMode="cover" // Options: "contain", "cover", "stretch", etc.
+      />
+    ),
+  }),
+  headerRight: Platform.select({
+    ios: () => (
+      <Button className="ios:px-2 mr-3" variant="plain" onPress={() => router.push('/profile')}>
+        <Avatar alt="Profile-name">
+          <AvatarImage
+            source={{
+              uri: 'https://prosave.apiservicehub.com/uploads/455359448_1024201792586882_7473297852785697052_n-1730142777258.jpg',
+            }}
+          />
+        </Avatar>
+      </Button>
+    ),
+    android: () => (
+      <Button variant="plain" onPress={() => router.push('/profile')}>
+        <Avatar alt="Profile-name">
+          <AvatarImage
+            source={{
+              uri: 'https://prosave.apiservicehub.com/uploads/455359448_1024201792586882_7473297852785697052_n-1730142777258.jpg',
+            }}
+          />
+        </Avatar>
       </Button>
     ),
   }),

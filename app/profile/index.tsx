@@ -3,7 +3,7 @@ import { router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Linking, Platform, View } from 'react-native';
 
-import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
+import LoadingScreen from '~/components/customs/loading-screen';
 import { Avatar, AvatarFallback } from '~/components/nativewindui/Avatar';
 import { Button } from '~/components/nativewindui/Button';
 import {
@@ -98,7 +98,7 @@ export default function Profile() {
   ];
 
   if (isLoading) {
-    return <ActivityIndicator />;
+    return <LoadingScreen />;
   }
 
   return (

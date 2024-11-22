@@ -88,6 +88,11 @@ export default function AuthIndexScreen() {
               <Text className="text-primary">Log in</Text>
             </Button>
           </Link>
+          <Link href="/workspace" asChild>
+            <Button size={Platform.select({ ios: 'lg', default: 'md' })}>
+              <Text>Go to Workspace</Text>
+            </Button>
+          </Link>
         </View>
       </SafeAreaView>
       <AlertAnchor ref={alertRef} />
