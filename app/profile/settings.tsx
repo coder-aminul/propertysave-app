@@ -155,7 +155,7 @@ const DATA: MockData[] = [
     id: '3',
     title: 'Memberships & Subscriptions',
     badge: 3,
-    onPress: () => console.log('member'),
+    onPress: () => router.push('/profile/subscriptions'),
   },
   'gap 3',
   {

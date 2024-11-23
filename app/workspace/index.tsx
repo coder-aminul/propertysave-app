@@ -1,7 +1,7 @@
 import { AntDesign } from '@expo/vector-icons';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
-import React, { useMemo } from 'react';
-import { View } from 'react-native';
+import React from 'react';
+import { View, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '~/components/nativewindui/Button';
@@ -9,26 +9,22 @@ import { Picker, PickerItem } from '~/components/nativewindui/Picker';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { Text } from '~/components/nativewindui/Text';
 import PropertyStatsSlider from '~/components/ui/slider/transaction-slider';
-import { defaultColumns } from '~/components/ui/table/columns';
-import { defaultData } from '~/components/ui/table/data';
 
 const ROOT_STYLE: ViewStyle = { flex: 1 };
 
 export default function WelcomeConsentScreen() {
-  const columns = useMemo(() => defaultColumns, []);
-  const data = useMemo(() => defaultData, []);
   const [picker, setPicker] = React.useState('blue');
   const bottomSheetModalRef = useSheetRef();
 
-  const collumn = [
-    { id: 1, label: 'Customer' },
-    { id: 2, label: 'Due Date' },
-    { id: 3, label: 'Amount' },
-    { id: 4, label: 'Status' },
-    { id: 5, label: 'Status' },
-    { id: 6, label: 'Status' },
-    { id: 7, label: 'Actions' },
-  ];
+  // const collumn = [
+  //   { id: 1, label: 'Customer' },
+  //   { id: 2, label: 'Due Date' },
+  //   { id: 3, label: 'Amount' },
+  //   { id: 4, label: 'Status' },
+  //   { id: 5, label: 'Status' },
+  //   { id: 6, label: 'Status' },
+  //   { id: 7, label: 'Actions' },
+  // ];
   return (
     <SafeAreaView style={ROOT_STYLE}>
       <View className="px-0 py-0">
@@ -68,7 +64,7 @@ export default function WelcomeConsentScreen() {
           </View>
         </> */}
 
-        <Sheet ref={bottomSheetModalRef}>
+        <Sheet ref={bottomSheetModalRef} stackBehavior="switch" snapPoints={[200, '50%']}>
           <BottomSheetView className=" px-2">
             <Text>Category select</Text>
             <Picker selectedValue={picker} onValueChange={(itemValue) => setPicker(itemValue)}>
