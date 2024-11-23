@@ -1,87 +1,549 @@
-import { useStripe } from '@stripe/stripe-react-native';
-import { Link } from 'expo-router';
-import { useColorScheme as useNativewindColorScheme } from 'nativewind';
-import { View, type ViewStyle } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { AntDesign } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import * as React from 'react';
+import { Alert, Platform, SafeAreaView, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import PickerModal from 'react-native-picker-modal-view';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '~/components/Button';
+import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
+import { Button } from '~/components/nativewindui/Button';
+import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { Text } from '~/components/nativewindui/Text';
-import { useCreateSubscriptionMutation } from '~/store/payment/payment';
+import { TextField } from '~/components/nativewindui/TextField';
+import { UAE_CITIES_OPTS } from '~/data/cities-data';
+import { property_category, property_typeOpt } from '~/data/data';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { useCreatePropertyMutation } from '~/store/property/propertyApi';
+import { ModalPickerSelctionTypes } from '~/types';
+import { formatNumberCommas } from '~/utils';
+import { getSecureValue } from '~/utils/secure-store';
 
-const ROOT_STYLE: ViewStyle = { flex: 1 };
+export default function TextFieldsScreen() {
+  const [materialVariant, setMaterialVariant] = React.useState<'filled' | 'outlined'>('outlined');
+  const [countryCode, setCountryCode] = React.useState<string>('91');
+  const [selectedLocation, setSelectedLocation] = React.useState<ModalPickerSelctionTypes>();
+  const [selectedCategory, setSelectedCategory] = React.useState<ModalPickerSelctionTypes>();
+  const [selectedPropertyType, setSelectedPropertyType] =
+    React.useState<ModalPickerSelctionTypes>();
+  const [createSucess, setCreateSuccess] = React.useState(false);
+  const [createProperty, { isLoading, isSuccess }] = useCreatePropertyMutation();
+  React.useEffect(() => {
+    if (isSuccess) {
+      setCreateSuccess(true);
+      alert('Property Created successfully!');
+      setTimeout(() => {
+        router.push('/workspace');
+        setFormData(initailState);
+        setCreateSuccess(false);
+        setSelectedCategory(null);
+        setSelectedLocation(null);
+        setSelectedPropertyType(null);
+      }, 1000);
+    }
+  }, [isSuccess]);
 
-export default function PropertyCreateScreen() {
-  const { toggleColorScheme } = useNativewindColorScheme();
-  const stripe = useStripe();
-  const [createSubscription] = useCreateSubscriptionMutation();
+  const initailState = {
+    plot_number: '',
+    price: '',
+    property_image: '',
+    property_location: '',
+    property_size: '',
+    property_type: '',
+    property_owner: '',
+    category: '',
+    author_info: {
+      username: '',
+      profile_picture: '',
+      author_id: '',
+    },
+    listedBy: {},
+    property_author: {},
+  };
 
-  const handleSubscribe = async () => {
+  const [formdata, setFormData] = React.useState(initailState);
+
+  const selectedValue = (value: any) => {
+    setCountryCode(value?.callingCode);
+  };
+
+  const { colors } = useColorScheme();
+  const insets = useSafeAreaInsets();
+
+  const onLocationSelected = (selected: any) => {
+    setSelectedLocation(selected);
+    return selected;
+  };
+
+  const onCategorySelected = (selected: any) => {
+    setSelectedCategory(selected);
+    return selected;
+  };
+  const onPropertyTypeSelected = (selected: any) => {
+    setSelectedPropertyType(selected);
+    return selected;
+  };
+
+  const onClosed = () => {
+    console.log('close key pressed');
+  };
+
+  const onBackButtonPressed = () => {
+    console.log('back key pressed');
+  };
+
+  const handleSubmit = async () => {
+    const userInfo = await getSecureValue('user');
+    const userdata = JSON.parse(userInfo);
+    // console.log('user', userdata?.first_name);
+    const propertyData = {
+      plot_number: formdata?.plot_number,
+      price: formdata?.price,
+      property_image: formdata?.property_image,
+      property_location: selectedLocation?.value,
+      property_size: formdata?.property_size,
+      property_type: selectedPropertyType?.value,
+      property_owner: formdata?.property_owner,
+      category: selectedCategory?.value,
+      author_info: {
+        username: `${userdata?.first_name} ${userdata?.last_name}`,
+        profile_picture: userdata?.profile_picture,
+        author_id: userdata?.id,
+      },
+      listedBy: {
+        _id: userdata?.id,
+      },
+      property_author: {
+        _id: userdata?.id,
+      },
+    };
+    if (!formdata.plot_number || !selectedLocation || !selectedCategory || !formdata.price) {
+      // alert('Please fill in all required fields.');
+      Alert.alert('SAVE', 'Please fill in all required fields.');
+      // eslint-disable-next-line no-unused-expressions
+
+      return;
+    }
     try {
-      // Get the client secret from the backend
-      const response = await createSubscription({
-        customerId: 'cus_REcK6S09QlG6sO', // Replace with your customer ID
-        priceId: 'price_1QCHSaAuSN43C26OOsBHdTdU', // Replace with your price ID
-      });
-
-      // Extract the clientSecret
-      const { clientSecret } = response?.data || {};
-
-      if (!clientSecret) {
-        throw new Error('No client secret found');
-      }
-
-      // Initialize the PaymentSheet
-      const { error: initError } = await stripe.initPaymentSheet({
-        paymentIntentClientSecret: clientSecret,
-        merchantDisplayName: 'Albayti Real Estate L.L.C.',
-        defaultBillingDetails: {
-          name: 'Jane Doe',
-        },
-        returnURL: 'property-save://workspace/create',
-        paymentMethodTypes: ['card', 'google_pay', 'apple_pay'], // Add Google Pay and Apple Pay
-        // applePay: {
-        //   merchantCountryCode: 'ae',
-        // },
-      });
-
-      if (initError) {
-        console.error('Error initializing payment sheet:', initError);
-        return;
-      }
-
-      // Present the PaymentSheet
-      const { error: presentError } = await stripe.presentPaymentSheet();
-
-      if (presentError) {
-        console.error('Payment failed:', presentError.message);
-        alert(presentError.message);
-      } else {
-        alert('Subscription created successfully!');
-      }
-    } catch (err) {
-      console.error('Error during subscription:', err);
-      alert(err.message);
+      await createProperty(propertyData);
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to create property.');
     }
   };
 
   return (
-    <SafeAreaView style={ROOT_STYLE}>
-      <View className="mx-auto max-w-sm flex-1 justify-between gap-4 px-8 py-4">
-        <View className="ios:pt-8 pt-12">
-          <Text> create form</Text>
-          <Link href="/profile">
-            <Text>profile</Text>
-          </Link>
-          <Button onPress={handleSubscribe} title="Payment" />
-          <Button title="dark-light" onPress={() => toggleColorScheme()} />
-          <Link href="/auth/(login)">
-            <Text>profile</Text>
-          </Link>
-          <Link href="/auth">
-            <Text>index auth</Text>
-          </Link>
+    <SafeAreaView>
+      <KeyboardAwareScrollView
+        bottomOffset={10}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        contentContainerStyle={{ paddingBottom: insets.bottom }}>
+        <Form className="android:pt-2 px-4 pt-8">
+          {/* <FormSection
+            ios={{ title: 'Base Text fields' }}
+            footnote="Footnote"
+            materialIconProps={{ name: 'person-outline' }}>
+            <FormItem>
+              <TextField
+                textContentType="none"
+                autoComplete="off"
+                materialVariant={materialVariant}
+                placeholder="First Name"
+              />
+            </FormItem>
+            <FormItem>
+              <TextField
+                textContentType="none"
+                autoComplete="off"
+                materialVariant={materialVariant}
+                placeholder="Last Name"
+              />
+            </FormItem>
+            <FormItem>
+              <TextField
+                textContentType="none"
+                autoComplete="off"
+                materialVariant={materialVariant}
+                placeholder="Username"
+              />
+            </FormItem>
+          </FormSection> */}
+
+          {Platform.OS === 'android' && (
+            <FormSection ios={{ title: 'TEXT FIELDS WITH LABELS' }}>
+              <Text className="font-semibold capitalize text-slate-700">property Info</Text>
+              <FormItem>
+                <PickerModal
+                  renderSelectView={(disabled, selected, showModal) => (
+                    <TextField
+                      textContentType="none"
+                      autoComplete="off"
+                      materialVariant={materialVariant}
+                      placeholder="Select Type"
+                      value={selectedPropertyType?.label}
+                      onPress={showModal}
+                    />
+                  )}
+                  onSelected={onPropertyTypeSelected}
+                  onClosed={onClosed}
+                  onBackButtonPressed={onBackButtonPressed}
+                  items={property_typeOpt}
+                  sortingLanguage="en"
+                  showToTopButton
+                  selected={selectedPropertyType}
+                  showAlphabeticalIndex
+                  autoGenerateAlphabeticalIndex
+                  selectPlaceholderText="Choose one..."
+                  onEndReached={() => console.log('list ended...')}
+                  searchPlaceholderText="Search Category"
+                  requireSelection={false}
+                  autoSort={false}
+                  // renderListItem={UAE_CITIES_OPTS}
+                />
+              </FormItem>
+              <FormItem>
+                <PickerModal
+                  renderSelectView={(disabled, selected, showModal) => (
+                    <TextField
+                      textContentType="none"
+                      autoComplete="off"
+                      materialVariant={materialVariant}
+                      placeholder="Select category"
+                      value={selectedCategory?.label}
+                      onPress={showModal}
+                    />
+                  )}
+                  onSelected={onCategorySelected}
+                  onClosed={onClosed}
+                  onBackButtonPressed={onBackButtonPressed}
+                  items={property_category}
+                  sortingLanguage="en"
+                  showToTopButton
+                  selected={selectedCategory}
+                  showAlphabeticalIndex
+                  autoGenerateAlphabeticalIndex
+                  selectPlaceholderText="Choose one..."
+                  onEndReached={() => console.log('list ended...')}
+                  searchPlaceholderText="Search Category"
+                  requireSelection={false}
+                  autoSort={false}
+                  // renderListItem={UAE_CITIES_OPTS}
+                />
+              </FormItem>
+              <FormItem>
+                <TextField
+                  textContentType="none"
+                  autoComplete="off"
+                  materialVariant={materialVariant}
+                  value={formdata?.plot_number}
+                  onChangeText={(text) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      plot_number: text,
+                    }))
+                  }
+                  label="Plot No"
+                  placeholder="1/B"
+                />
+              </FormItem>
+              <FormItem>
+                <TextField
+                  textContentType="none"
+                  autoComplete="off"
+                  materialVariant={materialVariant}
+                  label="Size (sqft)"
+                  placeholder="650 sqft"
+                  value={formdata?.property_size}
+                  onChangeText={(text) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      property_size: text,
+                    }))
+                  }
+                />
+              </FormItem>
+              <FormItem>
+                <PickerModal
+                  renderSelectView={(disabled, selected, showModal) => (
+                    <TextField
+                      textContentType="none"
+                      autoComplete="off"
+                      materialVariant={materialVariant}
+                      label="Location"
+                      placeholder="Dubai"
+                      value={selectedLocation?.label}
+                      onPress={showModal}
+                    />
+                  )}
+                  onSelected={onLocationSelected}
+                  onClosed={onClosed}
+                  onBackButtonPressed={onBackButtonPressed}
+                  items={UAE_CITIES_OPTS}
+                  sortingLanguage="en"
+                  showToTopButton
+                  selected={selectedLocation}
+                  showAlphabeticalIndex
+                  autoGenerateAlphabeticalIndex
+                  selectPlaceholderText="Choose one..."
+                  onEndReached={() => console.log('list ended...')}
+                  searchPlaceholderText="Search..."
+                  requireSelection={false}
+                  autoSort={false}
+                />
+              </FormItem>
+              <FormItem>
+                <TextField
+                  textContentType="none"
+                  autoComplete="off"
+                  materialVariant={materialVariant}
+                  label="Owner/Ref"
+                  placeholder="Mohammed"
+                  value={formdata?.property_owner}
+                  onChangeText={(text) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      property_owner: text,
+                    }))
+                  }
+                />
+              </FormItem>
+              <FormItem>
+                <TextField
+                  textContentType="none"
+                  autoComplete="off"
+                  materialVariant={materialVariant}
+                  label="Price in AED"
+                  placeholder="65000"
+                  value={formatNumberCommas(formdata?.price)}
+                  onChangeText={(text) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      price: text,
+                    }))
+                  }
+                />
+              </FormItem>
+            </FormSection>
+          )}
+          {Platform.OS === 'ios' && (
+            <FormSection ios={{ title: 'Property info', titleClassName: 'font-semibold' }}>
+              <FormItem>
+                <PickerModal
+                  renderSelectView={(disabled, selected, showModal) => (
+                    <TextField
+                      textContentType="none"
+                      autoComplete="off"
+                      materialVariant={materialVariant}
+                      placeholder="Select Type"
+                      value={selectedPropertyType?.label}
+                      onPress={showModal}
+                      leftView={
+                        <View className="w-28 justify-center pl-2">
+                          <Text>Type</Text>
+                        </View>
+                      }
+                    />
+                  )}
+                  onSelected={onPropertyTypeSelected}
+                  onClosed={onClosed}
+                  onBackButtonPressed={onBackButtonPressed}
+                  items={property_typeOpt}
+                  sortingLanguage="en"
+                  showToTopButton
+                  selected={selectedPropertyType}
+                  showAlphabeticalIndex
+                  autoGenerateAlphabeticalIndex
+                  selectPlaceholderText="Choose one..."
+                  onEndReached={() => console.log('list ended...')}
+                  searchPlaceholderText="Search Category"
+                  requireSelection={false}
+                  autoSort={false}
+                  // renderListItem={UAE_CITIES_OPTS}
+                />
+              </FormItem>
+              <FormItem>
+                <PickerModal
+                  renderSelectView={(disabled, selected, showModal) => (
+                    <TextField
+                      textContentType="none"
+                      autoComplete="off"
+                      materialVariant={materialVariant}
+                      placeholder="Select category"
+                      value={selectedCategory?.label}
+                      onPress={showModal}
+                      leftView={
+                        <View className="w-28 justify-center pl-2">
+                          <Text>Category</Text>
+                        </View>
+                      }
+                    />
+                  )}
+                  onSelected={onCategorySelected}
+                  onClosed={onClosed}
+                  onBackButtonPressed={onBackButtonPressed}
+                  items={property_category}
+                  sortingLanguage="en"
+                  showToTopButton
+                  selected={selectedCategory}
+                  showAlphabeticalIndex
+                  autoGenerateAlphabeticalIndex
+                  selectPlaceholderText="Choose one..."
+                  onEndReached={() => console.log('list ended...')}
+                  searchPlaceholderText="Search Category"
+                  requireSelection={false}
+                  autoSort={false}
+                  // renderListItem={UAE_CITIES_OPTS}
+                />
+              </FormItem>
+              <FormItem>
+                <TextField
+                  textContentType="none"
+                  autoComplete="off"
+                  materialVariant={materialVariant}
+                  value={formdata?.plot_number}
+                  onChangeText={(text) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      plot_number: text,
+                    }))
+                  }
+                  placeholder="#1/B"
+                  leftView={
+                    <View className="w-28 justify-center pl-2">
+                      <Text>Plot No</Text>
+                    </View>
+                  }
+                />
+              </FormItem>
+              <FormItem>
+                <TextField
+                  textContentType="none"
+                  autoComplete="off"
+                  materialVariant={materialVariant}
+                  placeholder="1600"
+                  value={formatNumberCommas(formdata?.property_size)}
+                  onChangeText={(text) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      property_size: text,
+                    }))
+                  }
+                  leftView={
+                    <View className="w-28 justify-center pl-2">
+                      <Text>Size (sqft)</Text>
+                    </View>
+                  }
+                />
+              </FormItem>
+              <FormItem>
+                <PickerModal
+                  renderSelectView={(disabled, selected, showModal) => (
+                    <TextField
+                      textContentType="none"
+                      autoComplete="off"
+                      materialVariant={materialVariant}
+                      placeholder="Dubai"
+                      value={selectedLocation?.label}
+                      onPress={showModal}
+                      leftView={
+                        <View className="w-28 justify-center pl-2">
+                          <Text>Loacation</Text>
+                        </View>
+                      }
+                    />
+                  )}
+                  onSelected={onLocationSelected}
+                  onClosed={onClosed}
+                  onBackButtonPressed={onBackButtonPressed}
+                  items={UAE_CITIES_OPTS}
+                  sortingLanguage="en"
+                  showToTopButton
+                  selected={selectedLocation}
+                  showAlphabeticalIndex
+                  autoGenerateAlphabeticalIndex
+                  selectPlaceholderText="Choose one..."
+                  onEndReached={() => console.log('list ended...')}
+                  searchPlaceholderText="Search Location"
+                  requireSelection={false}
+                  autoSort={false}
+                  // renderListItem={UAE_CITIES_OPTS}
+                />
+              </FormItem>
+              <FormItem>
+                <TextField
+                  textContentType="none"
+                  autoComplete="off"
+                  materialVariant={materialVariant}
+                  placeholder="Muhammad"
+                  value={formdata?.property_owner}
+                  onChangeText={(text) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      property_owner: text,
+                    }))
+                  }
+                  leftView={
+                    <View className="w-28 justify-center pl-2">
+                      <Text>Owner/Ref</Text>
+                    </View>
+                  }
+                />
+              </FormItem>
+              <FormItem>
+                <TextField
+                  textContentType="none"
+                  autoComplete="off"
+                  materialVariant={materialVariant}
+                  placeholder="65000"
+                  value={formatNumberCommas(formdata?.price)}
+                  onChangeText={(text) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      price: text,
+                    }))
+                  }
+                  leftView={
+                    <View className="w-28 justify-center pl-2">
+                      <Text>Price in AED</Text>
+                    </View>
+                  }
+                />
+              </FormItem>
+            </FormSection>
+          )}
+        </Form>
+        <View className="px-4 pt-5">
+          <Button
+            variant="primary"
+            onPress={handleSubmit}
+            className={createSucess ? 'bg-green-500' : ''}>
+            {isLoading ? (
+              <View className="gap- flex-row items-center">
+                <Text style={{ marginRight: 5 }}>Saveing.. </Text>
+                <ActivityIndicator color={colors?.background} />
+              </View>
+            ) : (
+              <View className="flex-row gap-2">
+                <Text>{createSucess ? 'Saved' : 'Save Property'}</Text>
+                {createSucess && (
+                  <Text>
+                    <AntDesign color="white" className="ml-3 px-5" name="checkcircle" size={17} />
+                  </Text>
+                )}
+              </View>
+            )}
+          </Button>
+          {/* <CountryPicker
+            animationType="slide"
+            language="en"
+            searchBarPlaceHolder="united arab emirats"
+            searchInputStyle={{ marginTop: 10 }}
+            countryCode={countryCode}
+            selectedValue={selectedValue}
+          /> */}
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
