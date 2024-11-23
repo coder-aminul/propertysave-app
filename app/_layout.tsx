@@ -6,10 +6,11 @@ import { Link, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, View } from 'react-native';
 // eslint-disable-next-line import/order
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
-import '../global.css';
-
 import { Provider } from 'react-redux';
+import '../global.css';
 
 import { AuthProvider } from '~/context/AuthContext';
 import { cn } from '~/lib/cn';
@@ -37,12 +38,16 @@ export default function RootLayout() {
             />
 
             <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
-              <NavThemeProvider value={NAV_THEME[colorScheme]}>
-                <Stack screenOptions={SCREEN_OPTIONS}>
-                  <Stack.Screen name="index" options={{ headerShown: false }} />
-                  <Stack.Screen name="+not-found" />
-                </Stack>
-              </NavThemeProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <BottomSheetModalProvider>
+                  <NavThemeProvider value={NAV_THEME[colorScheme]}>
+                    <Stack screenOptions={SCREEN_OPTIONS}>
+                      <Stack.Screen name="index" options={{ headerShown: false }} />
+                      <Stack.Screen name="+not-found" />
+                    </Stack>
+                  </NavThemeProvider>
+                </BottomSheetModalProvider>
+              </GestureHandlerRootView>
             </KeyboardProvider>
           </AuthProvider>
         </Provider>

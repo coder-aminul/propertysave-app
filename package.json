@@ -29,6 +29,7 @@
     "@roninoss/icons": "^0.0.4",
     "@shopify/flash-list": "1.6.4",
     "@stripe/stripe-react-native": "^0.39.0",
+    "@tanstack/react-table": "^8.20.5",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "expo": "~51.0.39",
