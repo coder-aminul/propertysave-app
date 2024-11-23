@@ -1,7 +1,8 @@
 import { AntDesign } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import * as React from 'react';
-import { Alert, Platform, SafeAreaView, View } from 'react-native';
+import { Alert, Platform, SafeAreaView, StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import PickerModal from 'react-native-picker-modal-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,6 +12,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Form, FormItem, FormSection } from '~/components/nativewindui/Form';
 import { Text } from '~/components/nativewindui/Text';
 import { TextField } from '~/components/nativewindui/TextField';
+import ImageUpload from '~/components/ui/upload/image-picker';
 import { UAE_CITIES_OPTS } from '~/data/cities-data';
 import { property_category, property_typeOpt } from '~/data/data';
 import { useColorScheme } from '~/lib/useColorScheme';
@@ -62,6 +64,7 @@ export default function TextFieldsScreen() {
   };
 
   const [formdata, setFormData] = React.useState(initailState);
+  const [image, setImage] = React.useState<string | null>(null);
 
   const selectedValue = (value: any) => {
     setCountryCode(value?.callingCode);
@@ -132,6 +135,24 @@ export default function TextFieldsScreen() {
     }
   };
 
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      console.log('Result:', result);
+      setImage(result?.assets[0]?.uri);
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   return (
     <SafeAreaView>
       <KeyboardAwareScrollView
@@ -139,7 +160,8 @@ export default function TextFieldsScreen() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
         contentContainerStyle={{ paddingBottom: insets.bottom }}>
-        <Form className="android:pt-2 px-4 pt-8">
+        <ImageUpload />
+        <Form className="android:pt-2 px-4 pt-3">
           {/* <FormSection
             ios={{ title: 'Base Text fields' }}
             footnote="Footnote"
@@ -547,3 +569,46 @@ export default function TextFieldsScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#f9f9f9',
+  },
+  heading: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  uploadContainer: {
+    borderWidth: 1.8,
+    borderColor: '#dfdfdf',
+    borderRadius: 8,
+    overflow: 'hidden',
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  uploadBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    width: 48,
+    height: 48,
+    marginBottom: 8,
+  },
+  uploadText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#222',
+  },
+  imagePreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    resizeMode: 'cover',
+  },
+});
