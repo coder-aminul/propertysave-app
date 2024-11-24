@@ -1,18 +1,67 @@
+import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 
-const ImageUpload = () => {
+import { setPropertyImage } from '~/store/media/mediaSlice';
+type ImageUploadType = {
+  isSuccess: boolean;
+};
+
+const ImageUpload = ({ isSuccess = false }: ImageUploadType) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const { propertyimage } = useSelector((state) => state.media);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (isSuccess) {
+      setSelectedImage(null);
+    }
+  }, [isSuccess]);
+
+  const uploadImage = async (image) => {
+    if (!image) return;
+
+    const formData = new FormData();
+    formData.append('file', {
+      uri: image.uri,
+      name: image.fileName ?? 'uploaded_image.jpg',
+      type: image.mimeType,
+    });
+
+    setUploading(true);
+
+    try {
+      const response = await axios.post('https://prosave.apiservicehub.com/v1/files', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.status === 200) {
+        dispatch(setPropertyImage(response.data?.files[0]?.src));
+        alert('Image uploaded successfully!');
+      } else {
+        alert(`Upload failed: ${response.data.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      alert(`Upload error: ${error.message}`);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -22,43 +71,9 @@ const ImageUpload = () => {
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0]);
-      console.log(result);
-      await uploadImage();
-    }
-  };
-
-  const uploadImage = async () => {
-    if (!selectedImage) return;
-
-    const formData = new FormData();
-    formData.append('file', {
-      uri: selectedImage?.uri,
-      name: selectedImage?.fileName ?? 'uploaded_image.jpg', // You can replace this with the desired file name
-      type: selectedImage?.mimeType, // Ensure the correct MIME type
-    });
-    setUploading(true);
-
-    try {
-      const response = await fetch('https://prosave.apiservicehub.com/v1/files', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData,
-      });
-
-      const result = await response.json();
-      console.log(result);
-      if (response.ok) {
-        alert('Image uploaded successfully!');
-      } else {
-        alert(`Upload failed: ${result.message || 'Unknown error'}`);
-      }
-    } catch (error) {
-      alert(`Upload error: ${error.message}`);
-    } finally {
-      setUploading(false);
+      const image = result.assets[0];
+      setSelectedImage(image); // Set the selected image
+      uploadImage(image);
     }
   };
 
@@ -74,16 +89,18 @@ const ImageUpload = () => {
               </View>
             ) : (
               <TouchableOpacity style={styles.uploadBox} onPress={pickImage} activeOpacity={0.7}>
-                <Text style={styles.uploadText}>Drop or select file</Text>
+                <Text style={styles.uploadText}>Select your image</Text>
               </TouchableOpacity>
             )}
           </View>
         </TouchableOpacity>
 
-        {selectedImage && (
+        {uploading && (
           <TouchableOpacity onPress={uploadImage} style={styles.uploadButton}>
             {uploading ? (
-              <ActivityIndicator size="small" color="#fff" />
+              <>
+                <ActivityIndicator size="small" color="#fff" />
+              </>
             ) : (
               <Text style={styles.buttonText}>Upload</Text>
             )}
@@ -98,7 +115,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#f9f9f9',
   },
   heading: {
     fontSize: 16,
@@ -126,7 +142,7 @@ const styles = StyleSheet.create({
   },
   imagePreview: {
     width: 100,
-    height: 100,
+    height: Platform.OS === 'ios' ? 100 : 50,
     borderRadius: 8,
     resizeMode: 'cover',
     justifyContent: 'center',

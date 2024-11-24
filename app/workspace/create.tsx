@@ -1,11 +1,11 @@
 import { AntDesign } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import * as React from 'react';
 import { Alert, Platform, SafeAreaView, StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import PickerModal from 'react-native-picker-modal-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
 import { Button } from '~/components/nativewindui/Button';
@@ -16,6 +16,7 @@ import ImageUpload from '~/components/ui/upload/image-picker';
 import { UAE_CITIES_OPTS } from '~/data/cities-data';
 import { property_category, property_typeOpt } from '~/data/data';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { clearPropertyimage } from '~/store/media/mediaSlice';
 import { useCreatePropertyMutation } from '~/store/property/propertyApi';
 import { ModalPickerSelctionTypes } from '~/types';
 import { formatNumberCommas } from '~/utils';
@@ -30,6 +31,8 @@ export default function TextFieldsScreen() {
     React.useState<ModalPickerSelctionTypes>();
   const [createSucess, setCreateSuccess] = React.useState(false);
   const [createProperty, { isLoading, isSuccess }] = useCreatePropertyMutation();
+  const { propertyimage } = useSelector((state: any) => state?.media);
+  const dispatch = useDispatch();
   React.useEffect(() => {
     if (isSuccess) {
       setCreateSuccess(true);
@@ -41,6 +44,7 @@ export default function TextFieldsScreen() {
         setSelectedCategory(null);
         setSelectedLocation(null);
         setSelectedPropertyType(null);
+        dispatch(clearPropertyimage());
       }, 1000);
     }
   }, [isSuccess]);
@@ -64,7 +68,6 @@ export default function TextFieldsScreen() {
   };
 
   const [formdata, setFormData] = React.useState(initailState);
-  const [image, setImage] = React.useState<string | null>(null);
 
   const selectedValue = (value: any) => {
     setCountryCode(value?.callingCode);
@@ -102,7 +105,7 @@ export default function TextFieldsScreen() {
     const propertyData = {
       plot_number: formdata?.plot_number,
       price: formdata?.price,
-      property_image: formdata?.property_image,
+      property_image: propertyimage,
       property_location: selectedLocation?.value,
       property_size: formdata?.property_size,
       property_type: selectedPropertyType?.value,
@@ -135,24 +138,6 @@ export default function TextFieldsScreen() {
     }
   };
 
-  const pickImage = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 1,
-      });
-
-      console.log('Result:', result);
-      setImage(result?.assets[0]?.uri);
-      if (!result.canceled) {
-        setImage(result.assets[0].uri);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
   return (
     <SafeAreaView>
       <KeyboardAwareScrollView
@@ -160,41 +145,10 @@ export default function TextFieldsScreen() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
         contentContainerStyle={{ paddingBottom: insets.bottom }}>
-        <ImageUpload />
+        <ImageUpload isSuccess={isSuccess} />
         <Form className="android:pt-2 px-4 pt-3">
-          {/* <FormSection
-            ios={{ title: 'Base Text fields' }}
-            footnote="Footnote"
-            materialIconProps={{ name: 'person-outline' }}>
-            <FormItem>
-              <TextField
-                textContentType="none"
-                autoComplete="off"
-                materialVariant={materialVariant}
-                placeholder="First Name"
-              />
-            </FormItem>
-            <FormItem>
-              <TextField
-                textContentType="none"
-                autoComplete="off"
-                materialVariant={materialVariant}
-                placeholder="Last Name"
-              />
-            </FormItem>
-            <FormItem>
-              <TextField
-                textContentType="none"
-                autoComplete="off"
-                materialVariant={materialVariant}
-                placeholder="Username"
-              />
-            </FormItem>
-          </FormSection> */}
-
           {Platform.OS === 'android' && (
-            <FormSection ios={{ title: 'TEXT FIELDS WITH LABELS' }}>
-              <Text className="font-semibold capitalize text-slate-700">property Info</Text>
+            <FormSection>
               <FormItem>
                 <PickerModal
                   renderSelectView={(disabled, selected, showModal) => (
