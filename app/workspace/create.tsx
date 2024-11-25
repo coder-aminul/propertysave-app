@@ -145,7 +145,7 @@ export default function TextFieldsScreen() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
         contentContainerStyle={{ paddingBottom: insets.bottom }}>
-        <ImageUpload isSuccess={isSuccess} />
+        <ImageUpload isSuccess={isSuccess} mode="property" />
         <Form className="android:pt-2 px-4 pt-3">
           {Platform.OS === 'android' && (
             <FormSection>

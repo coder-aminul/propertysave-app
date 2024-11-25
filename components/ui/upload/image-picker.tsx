@@ -1,8 +1,8 @@
+import { AntDesign } from '@expo/vector-icons';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   Image,
   Platform,
   SafeAreaView,
@@ -11,18 +11,27 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
+import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
+import { useColorScheme } from '~/lib/useColorScheme';
 import { setPropertyImage } from '~/store/media/mediaSlice';
 type ImageUploadType = {
   isSuccess: boolean;
+  iosClass?: string;
+  mode: string;
 };
 
-const ImageUpload = ({ isSuccess = false }: ImageUploadType) => {
+const ImageUpload = ({
+  isSuccess = false,
+  iosClass = 'ios:mt-8',
+  mode = 'agent',
+}: ImageUploadType) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const { propertyimage } = useSelector((state) => state.media);
+  const { colors } = useColorScheme();
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -79,27 +88,57 @@ const ImageUpload = ({ isSuccess = false }: ImageUploadType) => {
 
   return (
     <SafeAreaView>
-      <View style={styles.container} className="ios:mt-8">
+      <View style={styles.container} className={`${iosClass}`}>
         <TouchableOpacity onPress={pickImage}>
-          <View style={styles.uploadContainer}>
-            {selectedImage ? (
-              <View className="flex-col items-center justify-center">
-                <Image source={{ uri: selectedImage?.uri }} style={styles.imagePreview} />
-                <Text className="text-sm text-gray-400">Tap here to change the image</Text>
-              </View>
-            ) : (
-              <TouchableOpacity style={styles.uploadBox} onPress={pickImage} activeOpacity={0.7}>
-                <Text style={styles.uploadText}>Select your image</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+          {mode === 'property' ? (
+            <View style={styles.uploadContainer}>
+              {selectedImage ? (
+                <View className="flex-col items-center justify-center">
+                  <Image source={{ uri: selectedImage?.uri }} style={styles.imagePreview} />
+                  <Text className="text-sm text-gray-400">Tap here to change the image</Text>
+                </View>
+              ) : (
+                <TouchableOpacity style={styles.uploadBox} onPress={pickImage} activeOpacity={0.7}>
+                  <Text style={styles.uploadText}>Select your image</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          ) : (
+            <View className="ios:mt-3 android:mt-2 relative flex-1 items-center justify-center">
+              {selectedImage ? (
+                <Avatar alt="agent-avatar" className="relative h-24 w-24 bg-transparent">
+                  <AvatarImage source={{ uri: selectedImage?.uri }} className="z-10" />
+                  {uploading && (
+                    <ActivityIndicator
+                      color={colors.primary}
+                      className="absolute right-[40%] top-[40%] z-[9999]"
+                    />
+                  )}
+                  <AvatarFallback className="border border-dashed border-gray-400 bg-transparent">
+                    <Text>
+                      <AntDesign name="clouduploado" size={45} />
+                    </Text>
+                  </AvatarFallback>
+                </Avatar>
+              ) : (
+                <Avatar alt="agent-avatar" className="h-24 w-24 bg-transparent">
+                  <AvatarImage source={{ uri: '' }} />
+                  <AvatarFallback className="border border-dashed border-gray-400 bg-transparent">
+                    <Text>
+                      <AntDesign name="clouduploado" size={45} />
+                    </Text>
+                  </AvatarFallback>
+                </Avatar>
+              )}
+            </View>
+          )}
         </TouchableOpacity>
 
-        {uploading && (
+        {uploading && mode === 'property' && (
           <TouchableOpacity onPress={uploadImage} style={styles.uploadButton}>
             {uploading ? (
               <>
-                <ActivityIndicator size="small" color="#fff" />
+                <ActivityIndicator color={colors?.background} />
               </>
             ) : (
               <Text style={styles.buttonText}>Upload</Text>

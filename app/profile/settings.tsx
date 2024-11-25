@@ -148,7 +148,7 @@ const DATA: MockData[] = [
         </Avatar>
       </View>
     ),
-    onPress: () => console.log('Propertysave'),
+    onPress: () => router.push('/profile/agents'),
   },
 
   {
