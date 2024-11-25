@@ -150,7 +150,35 @@ const DATA: MockData[] = [
     ),
     onPress: () => router.push('/profile/agents'),
   },
-
+  {
+    id: '10',
+    title: 'Team members',
+    leftView: (
+      <View className="flex-row px-3 ">
+        <Avatar alt="Zach Nugent's avatar" className="h-6 w-6">
+          <AvatarImage
+            source={{
+              uri: 'https://avatars.githubusercontent.com/u/63797719?v=4',
+            }}
+          />
+          <AvatarFallback>
+            <Text>ZN</Text>
+          </AvatarFallback>
+        </Avatar>
+        <Avatar alt="Dan Stepanov's avatar" className="-ml-2 h-6 w-6">
+          <AvatarImage
+            source={{
+              uri: 'https://avatars.githubusercontent.com/u/5482800?v=4',
+            }}
+          />
+          <AvatarFallback>
+            <Text>DS</Text>
+          </AvatarFallback>
+        </Avatar>
+      </View>
+    ),
+    onPress: () => router.push('/profile/agentslist'),
+  },
   {
     id: '3',
     title: 'Memberships & Subscriptions',

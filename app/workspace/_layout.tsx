@@ -1,12 +1,14 @@
-import { router, Tabs } from 'expo-router';
+import { router, Tabs, usePathname } from 'expo-router';
 import React from 'react';
 import { Image, Platform } from 'react-native';
 
 import Navigations from '~/components/customs/navigations/navigations';
 import { Avatar, AvatarImage } from '~/components/nativewindui/Avatar';
 import { Button } from '~/components/nativewindui/Button';
+import { Text } from '~/components/nativewindui/Text';
 
 export default function WorkSpaceLayout() {
+  const currentPathname = usePathname();
   return (
     <Tabs screenOptions={SCREEN_OPTIONS} tabBar={(props) => <Navigations {...props} />}>
       <Tabs.Screen
@@ -25,6 +27,7 @@ export default function WorkSpaceLayout() {
         name="properties"
         options={{
           title: 'Properties',
+          headerTransparent: false,
         }}
       />
     </Tabs>
@@ -38,12 +41,7 @@ const SCREEN_OPTIONS = {
   headerLeft: Platform.select({
     ios: () => (
       <Button className="ios:px-2 ml-2" variant="plain">
-        <Image
-          source={{
-            uri: 'https://api.marayaglobal.xyz/uploads/logo-short-light-icon.401a77f0-1731347415919.png',
-          }}
-          resizeMode="cover" // Options: "contain", "cover", "stretch", etc.
-        />
+        <Text>Home</Text>
       </Button>
     ),
     android: () => (

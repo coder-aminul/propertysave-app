@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Pressable, View } from 'react-native';
 // eslint-disable-next-line import/order
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { PortalHost } from '@rn-primitives/portal';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { Provider } from 'react-redux';
@@ -36,8 +37,7 @@ export default function RootLayout() {
               key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
               style={isDarkColorScheme ? 'light' : 'dark'}
             />
-
-            <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
+            {/* <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
               <GestureHandlerRootView style={{ flex: 1 }}>
                 <BottomSheetModalProvider>
                   <NavThemeProvider value={NAV_THEME[colorScheme]}>
@@ -45,10 +45,24 @@ export default function RootLayout() {
                       <Stack.Screen name="index" options={{ headerShown: false }} />
                       <Stack.Screen name="+not-found" />
                     </Stack>
+                    <PortalHost />
                   </NavThemeProvider>
                 </BottomSheetModalProvider>
               </GestureHandlerRootView>
-            </KeyboardProvider>
+            </KeyboardProvider> */}
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
+                <BottomSheetModalProvider>
+                  <NavThemeProvider value={NAV_THEME[colorScheme]}>
+                    <Stack screenOptions={SCREEN_OPTIONS}>
+                      <Stack.Screen name="index" options={{ headerShown: false }} />
+                      <Stack.Screen name="+not-found" />
+                    </Stack>
+                    <PortalHost />
+                  </NavThemeProvider>
+                </BottomSheetModalProvider>
+              </KeyboardProvider>
+            </GestureHandlerRootView>
           </AuthProvider>
         </Provider>
       </StripeProvider>

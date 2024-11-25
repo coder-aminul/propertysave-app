@@ -8,7 +8,6 @@ import {
   Dimensions,
   Platform,
   Pressable,
-  SafeAreaView,
   View,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -32,6 +31,7 @@ import { ContextMenu } from '~/components/nativewindui/ContextMenu';
 import { createContextItem } from '~/components/nativewindui/ContextMenu/utils';
 import { DropdownMenu } from '~/components/nativewindui/DropdownMenu';
 import { createDropdownItem } from '~/components/nativewindui/DropdownMenu/utils';
+import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import { List, ListItem, ListRenderItemInfo } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
 import { Toolbar } from '~/components/nativewindui/Toolbar';
@@ -74,11 +74,13 @@ export default function ConversationsIosScreen() {
 
   return (
     <>
-      <SafeAreaView>
-        <View className="mx-2 flex-row">
-          <LeftView isSelecting={isSelecting} setIsSelecting={onIsSelectingChange} />
-        </View>
-      </SafeAreaView>
+      <LargeTitleHeader
+        title="Messages"
+        leftView={() => <LeftView isSelecting={isSelecting} setIsSelecting={onIsSelectingChange} />}
+        rightView={rightView}
+        backgroundColor={isDarkColorScheme ? colors.background : colors.card}
+        searchBar={SEARCH_BAR}
+      />
       <List
         data={ITEMS}
         extraData={[isSelecting, selectedMessages]}
@@ -248,7 +250,7 @@ function MessageRow({
       }
       setSelectedMessages([...selectedMessages, info.item.id]);
     }
-    // router.push(');
+    // router.push('/messages-ios/chat-ios');
   }
 
   function onCheckedChange(isChecked: boolean) {
