@@ -200,7 +200,7 @@ export default function Swipeable({
   return (
     <GestureDetector gesture={pan}>
       <View>
-        <Animated.View style={statusActionStyle} className="bg-primary">
+        {/* <Animated.View style={statusActionStyle} className="bg-primary">
           <Animated.View style={statusIconStyle}>
             <Pressable
               style={ACTION_BUTTON_STYLE}
@@ -217,7 +217,7 @@ export default function Swipeable({
               />
             </Pressable>
           </Animated.View>
-        </Animated.View>
+        </Animated.View> */}
         <Animated.View style={trashActionStyle} className="bg-destructive">
           <Animated.View style={trashIconStyle}>
             <Pressable
@@ -234,8 +234,8 @@ export default function Swipeable({
             onPress={onNotificationActionPress}
             className="absolute bottom-0 left-0 top-0 items-center justify-center">
             <Icon
-              ios={{ name: 'bell.slash.fill' }}
-              materialIcon={{ type: 'MaterialCommunityIcons', name: 'bell-cancel' }}
+              ios={{ name: 'pencil' }}
+              materialIcon={{ type: 'MaterialCommunityIcons', name: 'pencil' }}
               size={24}
               color="white"
             />

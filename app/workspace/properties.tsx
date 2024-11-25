@@ -3,6 +3,8 @@ import * as React from 'react';
 import { SafeAreaView, View } from 'react-native';
 import { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
 
+import LoadingScreen from '~/components/customs/loading-screen';
+import NotfoundScreen from '~/components/customs/nofound';
 import { List, ListRenderItemInfo } from '~/components/nativewindui/List';
 import PropertyItem from '~/components/properties/propertyItem';
 import SelectingToolbar from '~/components/properties/toolbar';
@@ -11,12 +13,17 @@ import { useGetPropertiesbyCompanyQuery } from '~/store/property/propertyApi';
 import { Property, User } from '~/types';
 import { convertToTime, formatPrice } from '~/utils';
 
-export default function ConversationsIosScreen() {
+export default function PropertiesListScreen() {
   const [isSelecting, setIsSelecting] = React.useState(false);
   const isSelectingDerived = useDerivedValue(() => isSelecting);
   const [selectedMessages, setSelectedMessages] = React.useState<string[]>([]);
   const [currentUser, setCurrentUser] = React.useState<User>();
-  const { data: response } = useGetPropertiesbyCompanyQuery({
+  const [propertyall, setPropertyAll] = React.useState([]);
+  const {
+    data: response,
+    isSuccess,
+    isLoading,
+  } = useGetPropertiesbyCompanyQuery({
     id: currentUser?.id,
     role: currentUser?.role,
   });
@@ -34,22 +41,28 @@ export default function ConversationsIosScreen() {
   });
 
   React.useEffect(() => {
+    if (isSuccess) {
+      SecureStore.setItem('properties', JSON.stringify(propertiesList));
+    }
     const fetchUserInfo = async () => {
       try {
         const userInfo: any = await SecureStore.getItemAsync('user');
+        const propertiesall: any = await SecureStore.getItemAsync('properties');
         const userdata = JSON.parse(userInfo);
+        const propertiesdata = JSON.parse(propertiesall);
         if (userdata?.id) {
           setCurrentUser(userdata);
         } else {
           console.log('No user data found in SecureStore.');
         }
+        setPropertyAll(propertiesdata);
       } catch (error) {
         console.error('Error fetching user info:', error);
       }
     };
 
     fetchUserInfo();
-  }, [setCurrentUser]);
+  }, [setCurrentUser, isSuccess, setPropertyAll]);
 
   const checkboxContainerStyle = useAnimatedStyle(() => {
     return {
@@ -79,6 +92,13 @@ export default function ConversationsIosScreen() {
     setIsSelecting(value);
   }
 
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+  if (isLoading) {
+    return <NotfoundScreen />;
+  }
+
   return (
     <>
       <SafeAreaView>
@@ -87,7 +107,7 @@ export default function ConversationsIosScreen() {
         </View>
       </SafeAreaView>
       <List
-        data={propertiesList}
+        data={propertyall}
         extraData={[isSelecting, selectedMessages]}
         contentInsetAdjustmentBehavior="automatic"
         ListFooterComponent={isSelecting ? <View className="h-[46px]" /> : undefined}
