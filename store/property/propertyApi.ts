@@ -25,8 +25,19 @@ export const propertyApi = apiSlice
         }),
         providesTags: (res, err, arg) => [{ type: 'property', id: arg }],
       }),
+      getPropertiesbyCompany: builder.query({
+        query: ({ id, role }) => ({
+          url: `/propertylist/${id}/${role}`,
+          method: 'GET',
+        }),
+        providesTags: ['properties'],
+      }),
     }),
   });
 
-export const { useCreatePropertyMutation, useGetPropertiesQuery, useGetPropertyQuery } =
-  propertyApi;
+export const {
+  useCreatePropertyMutation,
+  useGetPropertiesQuery,
+  useGetPropertyQuery,
+  useGetPropertiesbyCompanyQuery,
+} = propertyApi;

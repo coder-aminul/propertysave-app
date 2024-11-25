@@ -104,10 +104,10 @@ export default function TextFieldsScreen() {
     // console.log('user', userdata?.first_name);
     const propertyData = {
       plot_number: formdata?.plot_number,
-      price: formdata?.price,
+      price: formdata?.price?.replace(/,/g, ''),
       property_image: propertyimage,
       property_location: selectedLocation?.value,
-      property_size: formdata?.property_size,
+      property_size: formdata?.property_size?.replace(/,/g, ''),
       property_type: selectedPropertyType?.value,
       property_owner: formdata?.property_owner,
       category: selectedCategory?.value,
