@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import * as React from 'react';
 import { SafeAreaView, View } from 'react-native';
@@ -50,13 +51,21 @@ export default function PropertiesListScreen() {
   });
 
   React.useEffect(() => {
+    const saveData = async (key: string, value: any) => {
+      try {
+        await AsyncStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {
+        console.error('Error saving data', error);
+      }
+    };
     if (isSuccess) {
-      SecureStore.setItem('properties', JSON.stringify(propertiesList));
+      // SecureStore.setItem('properties', JSON.stringify(propertiesList));
+      saveData('properties', JSON.stringify(propertiesList));
     }
     const fetchUserInfo = async () => {
       try {
         const userInfo: any = await SecureStore.getItemAsync('user');
-        const propertiesall: any = await SecureStore.getItemAsync('properties');
+        const propertiesall: any = await AsyncStorage.getItem('properties');
         const userdata = JSON.parse(userInfo);
         const propertiesdata = JSON.parse(propertiesall);
         if (userdata?.id) {
