@@ -65,3 +65,21 @@ export type Property = {
   };
   agent: string;
 };
+
+export type PROPERTY_ITEMS = {
+  id: string;
+  contact: boolean;
+  unread: boolean;
+  title: string;
+  subTitle: string;
+  timestamp: string;
+  image: string;
+  plot_number: string;
+  property_location: string;
+  property_size: string;
+  property_image: string;
+  property_type: string;
+  property_owner: string;
+  category: string;
+  price: string;
+};

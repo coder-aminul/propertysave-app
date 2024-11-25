@@ -10,6 +10,7 @@ export const propertyApi = apiSlice
           method: 'POST',
           body: data,
         }),
+        invalidatesTags: ['properties', 'property'],
       }),
       getProperties: builder.query({
         query: () => ({

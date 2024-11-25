@@ -37,6 +37,15 @@ export default function PropertiesListScreen() {
       title: `${item?.plot_number} ${item?.property_location}`,
       subTitle: `${formatPrice(Number(item?.price))} ${item?.property_type}`,
       timestamp: convertToTime(item?.createdAt),
+      image: item?.property_image,
+      plot_number: item?.plot_number,
+      property_location: item?.property_location,
+      property_size: item?.property_size,
+      property_image: item?.property_image,
+      property_type: item?.property_type,
+      property_owner: item?.property_owner,
+      category: item?.category,
+      price: item?.price,
     };
   });
 
@@ -107,7 +116,7 @@ export default function PropertiesListScreen() {
         </View>
       </SafeAreaView>
       <List
-        data={propertyall}
+        data={propertiesList}
         extraData={[isSelecting, selectedMessages]}
         contentInsetAdjustmentBehavior="automatic"
         ListFooterComponent={isSelecting ? <View className="h-[46px]" /> : undefined}

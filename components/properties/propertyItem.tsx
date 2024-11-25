@@ -1,7 +1,7 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Icon } from '@roninoss/icons';
 import * as React from 'react';
-import { Platform, View, type ViewStyle } from 'react-native';
+import { Image, Platform, StyleSheet, TouchableOpacity, View, type ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { renderIosContextMenuPreview } from './contextmenu-preview';
@@ -15,7 +15,7 @@ import {
   TIMESTAMP_CONTAINER_STYLE,
 } from './utils';
 
-import { Avatar, AvatarFallback } from '~/components/nativewindui/Avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { Checkbox } from '~/components/nativewindui/Checkbox';
 import { ContextMenu } from '~/components/nativewindui/ContextMenu';
 import { ListItem, ListRenderItemInfo } from '~/components/nativewindui/List';
@@ -23,6 +23,7 @@ import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { formatNumberCommas, formatPrice } from '~/utils';
 
 export default function PropertyItem({
   info,
@@ -95,9 +96,12 @@ export default function PropertyItem({
                   </View>
                 </View> */}
               <Avatar alt="avatar" className="h-12 w-12">
+                <AvatarImage
+                  source={{ uri: `https://prosave.apiservicehub.com/${info?.item?.image}` }}
+                />
                 <AvatarFallback>
                   <View className="opacity-90 dark:opacity-80">
-                    {info.item.contact ? (
+                    {info.item.title ? (
                       <Text
                         className="dark:ios:text-white leading-6 text-white dark:text-background"
                         variant="title3">
@@ -135,11 +139,102 @@ export default function PropertyItem({
           {info.item.timestamp}
         </Text>
       </View>
-      <Sheet ref={bottomSheetModalRef} snapPoints={[200]}>
-        <BottomSheetView className="flex-1 items-center justify-center pb-8">
-          <Text className="text-foreground">{info?.item?.title}</Text>
+      <Sheet ref={bottomSheetModalRef} snapPoints={['50%']}>
+        <BottomSheetView className="flex-1 items-center justify-start p-3">
+          <View className="mb-5">
+            <Text className="text-[20px] font-bold">Property Details</Text>
+          </View>
+          <View className="w-full flex-row justify-between gap-2">
+            <TouchableOpacity className="w-[40%]">
+              <View
+                className="h-[215px] rounded-md border border-gray-300 bg-slate-50 drop-shadow-lg"
+                style={{
+                  shadowColor: 'black',
+                  shadowOffset: { width: 0, height: 10 },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 10,
+                  padding: 8,
+                }}>
+                <Image
+                  source={{
+                    uri: `https://prosave.apiservicehub.com/uploads/888-1732465645708.jpeg`,
+                  }}
+                  style={{
+                    width: 'auto',
+                    resizeMode: 'contain',
+                    borderRadius: 5,
+                    objectFit: 'fill',
+                    height: 195,
+                  }}
+                  alt="image"
+                />
+              </View>
+            </TouchableOpacity>
+            <View className="flex-row justify-between gap-7">
+              <View className="flex-col gap-3">
+                <View>
+                  <Text className="text-[18px] font-semibold">Property</Text>
+                  <Text className="text-sm capitalize">{info?.item?.category}</Text>
+                </View>
+                <View>
+                  <Text className="text-[18px] font-semibold">Size</Text>
+                  <Text className="text-sm">
+                    {formatNumberCommas(info?.item?.property_size)} sqft
+                  </Text>
+                </View>
+                <View>
+                  <Text className="text-[18px] font-semibold">Price</Text>
+                  <Text className="text-sm capitalize">{formatPrice(info?.item?.price)}</Text>
+                </View>
+                <View>
+                  <Text className="text-[18px] font-semibold">Plot Number</Text>
+                  <Text className="text-sm capitalize">{info?.item?.plot_number}</Text>
+                </View>
+              </View>
+              <View className="flex-col gap-3">
+                <View>
+                  <Text className="text-[18px] font-semibold">Type</Text>
+                  <Text className="text-sm capitalize">{info?.item?.property_type}</Text>
+                </View>
+                <View>
+                  <Text className="text-[18px] font-semibold">Location</Text>
+                  <Text className="text-sm capitalize">{info?.item?.property_location}</Text>
+                </View>
+                <View>
+                  <Text className="text-[18px] font-semibold">Owne/Ref</Text>
+                  <Text className="text-sm capitalize">{info?.item?.property_owner}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
         </BottomSheetView>
       </Sheet>
     </Swipeable>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  imageBox: {
+    width: 300,
+    height: 200,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  image: {
+    borderRadius: 20,
+    resizeMode: 'contain',
+    width: 'auto',
+  },
+  insetShadow: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)', // Shadow color
+    borderRadius: 20,
+    margin: 5, // Creates the "inset" effect
+  },
+});
