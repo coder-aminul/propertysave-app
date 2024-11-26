@@ -68,6 +68,7 @@ export default function PropertiesListScreen() {
         const propertiesall: any = await AsyncStorage.getItem('properties');
         const userdata = JSON.parse(userInfo);
         const propertiesdata = JSON.parse(propertiesall);
+
         if (userdata?.id) {
           setCurrentUser(userdata);
         } else {
