@@ -18,10 +18,12 @@ export default function FilterBottomSheet({
   sheetRef,
   updateFilters,
   fetchDataonFilter,
+  onClearFilter,
 }: {
   sheetRef: string | any;
   updateFilters: (key: string, value: any) => void;
   fetchDataonFilter: () => void;
+  onClearFilter: () => void;
 }) {
   const insets = useSafeAreaInsets();
   const [materialVariant, setMaterialVariant] = React.useState<'filled' | 'outlined'>('outlined');
@@ -29,6 +31,14 @@ export default function FilterBottomSheet({
   const [selectedCategory, setSelectedCategory] = React.useState<ModalPickerSelctionTypes>();
   const [selectedPropertyType, setSelectedPropertyType] =
     React.useState<ModalPickerSelctionTypes>();
+
+  //Onclear filter
+  const onClear = async () => {
+    onClearFilter();
+    setSelectedCategory({});
+    setSelectedLocation({});
+    setSelectedPropertyType({});
+  };
 
   //OnChnage Handeler
 
@@ -49,23 +59,6 @@ export default function FilterBottomSheet({
     updateFilters('propertyTypes', selected?.value || null);
     return selected;
   };
-  const initailState = {
-    plot_number: '',
-    price: '',
-    property_image: '',
-    property_location: '',
-    property_size: '',
-    property_type: '',
-    property_owner: '',
-    category: '',
-    author_info: {
-      username: '',
-      profile_picture: '',
-      author_id: '',
-    },
-    listedBy: {},
-    property_author: {},
-  };
 
   //Picker Modal
 
@@ -75,12 +68,6 @@ export default function FilterBottomSheet({
 
   const onBackButtonPressed = () => {
     console.log('back key pressed');
-  };
-
-  const [formdata, setFormData] = React.useState(initailState);
-
-  const onApplyFilters = () => {
-    fetchDataonFilter(); // Fetch data on button click
   };
 
   return (
@@ -93,8 +80,8 @@ export default function FilterBottomSheet({
               <Text className="text-sm font-semibold">Fliters</Text>
             </View>
             <View>
-              <Button size="sm" className="bg-red-500" onPress={() => sheetRef?.current?.close()}>
-                <Text>Close</Text>
+              <Button size="sm" className="bg-red-500" onPress={onClear}>
+                <Text>Clear</Text>
               </Button>
             </View>
           </View>
@@ -104,23 +91,13 @@ export default function FilterBottomSheet({
               <Form>
                 <FormSection>
                   <FormItem>
-                    <TextField
-                      placeholder="search anything.."
-                      leftView={
-                        <View className="w-28 justify-center pl-2">
-                          <Text>Search</Text>
-                        </View>
-                      }
-                    />
-                  </FormItem>
-                  <FormItem>
                     <PickerModal
                       renderSelectView={(disabled, selected, showModal) => (
                         <TextField
                           textContentType="none"
                           autoComplete="off"
                           materialVariant={materialVariant}
-                          placeholder="Select category"
+                          placeholder="Category"
                           value={selectedCategory?.label}
                           onPress={showModal}
                           leftView={
@@ -153,7 +130,7 @@ export default function FilterBottomSheet({
                           textContentType="none"
                           autoComplete="off"
                           materialVariant={materialVariant}
-                          placeholder="Select Location"
+                          placeholder="Location"
                           value={selectedLocation?.label}
                           onPress={showModal}
                           leftView={

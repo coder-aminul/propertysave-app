@@ -68,6 +68,27 @@ export default function PropertiesListScreen() {
       console.error('Error fetching properties:', error);
     }
   };
+  const isEmptyObject = (obj: object) => {
+    return Object.keys(obj).length === 0;
+  };
+
+  const clearFilter = async () => {
+    setFilters({});
+    setPage(1);
+    try {
+      const result = await triggerFetch({
+        id: currentUser?.id,
+        role: currentUser?.role,
+        page: 1,
+        limit: 10,
+      }).unwrap();
+
+      setPropertiesLazy([...result?.data?.rows]); // Update the list immutably
+      setPage(() => 1); // Ensure the page resets correctly
+    } catch (error) {
+      console.error('Error fetching properties:', error);
+    }
+  };
 
   // const {
   //   data: response,
@@ -136,7 +157,7 @@ export default function PropertiesListScreen() {
     };
 
     fetchUserInfo();
-  }, [setCurrentUser, isSuccess, setPropertyAll]);
+  }, [setCurrentUser, isSuccess, setPropertyAll, propertieslazy, page, filters]);
 
   const checkboxContainerStyle = useAnimatedStyle(() => {
     return {
@@ -169,19 +190,22 @@ export default function PropertiesListScreen() {
   if (isLoading) {
     return <LoadingScreen />;
   }
+
   if (isSuccess && !isLoading && isError) {
     return <FetchMessageScreen message={error?.errors} />;
   }
-  // if (isSuccess && !isLoading && !isError && propertiesList?.length === 0) {
-  //   return <FetchMessageScreen message="Not founds properties" />;
-  // }
 
   return (
     <>
       <SafeAreaView>
         <View className="mx-2 flex-row items-center justify-between py-3">
           <LeftView isSelecting={isSelecting} setIsSelecting={onIsSelectingChange} />
-          <View>
+          <View className="flex-row gap-2">
+            <Button onPress={clearFilter}>
+              <View className="flex-row items-center gap-2">
+                <Text className="font-semibold text-white">Clear</Text>
+              </View>
+            </Button>
             <Button onPress={openFilterSheet}>
               <View className="flex-row items-center gap-2">
                 <Text>
@@ -194,6 +218,7 @@ export default function PropertiesListScreen() {
               sheetRef={filterSheetRef}
               updateFilters={updateFilters}
               fetchDataonFilter={fetchDataOnFilter}
+              onClearFilter={clearFilter}
             />
           </View>
         </View>
