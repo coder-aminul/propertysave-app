@@ -3,6 +3,7 @@ import { apiSlice } from '../api/apiSlice';
 export const propertyApi = apiSlice
   .enhanceEndpoints({ addTagTypes: ['properties', 'property'] })
   .injectEndpoints({
+    overrideExisting: true,
     endpoints: (builder) => ({
       createProperty: builder.mutation({
         query: (data) => ({
@@ -33,6 +34,16 @@ export const propertyApi = apiSlice
         }),
         providesTags: ['properties'],
       }),
+      getPropertiesbyAuthor: builder.query({
+        query: ({ id, role, page = 1, limit = 10, filters = {} }) => {
+          const params = new URLSearchParams({ page, limit, ...filters });
+          return {
+            url: `/propertylist/${id}/${role}?${params.toString()}`,
+            method: 'GET',
+          };
+        },
+        providesTags: ['properties'],
+      }),
     }),
   });
 
@@ -41,4 +52,6 @@ export const {
   useGetPropertiesQuery,
   useGetPropertyQuery,
   useGetPropertiesbyCompanyQuery,
+  useGetPropertiesbyAuthorQuery,
+  useLazyGetPropertiesbyAuthorQuery,
 } = propertyApi;

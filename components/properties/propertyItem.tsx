@@ -144,6 +144,7 @@ export default function PropertyItem({
           <View className="mb-5">
             <Text className="text-[20px] font-bold">Property Details</Text>
           </View>
+
           <View className="w-full flex-row justify-between gap-2">
             <TouchableOpacity className="w-[40%]">
               <View
@@ -157,7 +158,7 @@ export default function PropertyItem({
                 }}>
                 <Image
                   source={{
-                    uri: `https://prosave.apiservicehub.com/uploads/888-1732465645708.jpeg`,
+                    uri: `https://prosave.apiservicehub.com/${info?.item?.property_image}`,
                   }}
                   style={{
                     width: 'auto',
@@ -170,7 +171,7 @@ export default function PropertyItem({
                 />
               </View>
             </TouchableOpacity>
-            <View className="flex-row justify-between gap-7">
+            <View className="flex-row justify-between p-2">
               <View className="flex-col gap-3">
                 <View>
                   <Text className="text-[18px] font-semibold">Property</Text>
@@ -194,7 +195,7 @@ export default function PropertyItem({
               <View className="flex-col gap-3">
                 <View>
                   <Text className="text-[18px] font-semibold">Type</Text>
-                  <Text className="text-sm capitalize">{info?.item?.property_type}</Text>
+                  <Text className="text-wrap text-sm capitalize">{info?.item?.property_type}</Text>
                 </View>
                 <View>
                   <Text className="text-[18px] font-semibold">Location</Text>

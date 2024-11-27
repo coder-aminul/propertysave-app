@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { Icon } from '@roninoss/icons';
 import { StripeProvider } from '@stripe/stripe-react-native';
@@ -37,19 +38,6 @@ export default function RootLayout() {
               key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
               style={isDarkColorScheme ? 'light' : 'dark'}
             />
-            {/* <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <BottomSheetModalProvider>
-                  <NavThemeProvider value={NAV_THEME[colorScheme]}>
-                    <Stack screenOptions={SCREEN_OPTIONS}>
-                      <Stack.Screen name="index" options={{ headerShown: false }} />
-                      <Stack.Screen name="+not-found" />
-                    </Stack>
-                    <PortalHost />
-                  </NavThemeProvider>
-                </BottomSheetModalProvider>
-              </GestureHandlerRootView>
-            </KeyboardProvider> */}
             <GestureHandlerRootView style={{ flex: 1 }}>
               <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
                 <BottomSheetModalProvider>

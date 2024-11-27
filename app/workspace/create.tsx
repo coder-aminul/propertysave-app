@@ -510,14 +510,6 @@ export default function TextFieldsScreen() {
               </View>
             )}
           </Button>
-          {/* <CountryPicker
-            animationType="slide"
-            language="en"
-            searchBarPlaceHolder="united arab emirats"
-            searchInputStyle={{ marginTop: 10 }}
-            countryCode={countryCode}
-            selectedValue={selectedValue}
-          /> */}
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>

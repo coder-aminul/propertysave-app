@@ -1,16 +1,21 @@
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import * as React from 'react';
-import { SafeAreaView, View } from 'react-native';
+import { SafeAreaView, Text, View } from 'react-native';
 import { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
 
 import LoadingScreen from '~/components/customs/loading-screen';
-import NotfoundScreen from '~/components/customs/nofound';
+import FetchMessageScreen from '~/components/customs/nofound';
+import { ActivityIndicator } from '~/components/nativewindui/ActivityIndicator';
+import { Button } from '~/components/nativewindui/Button';
 import { List, ListRenderItemInfo } from '~/components/nativewindui/List';
+import { useSheetRef } from '~/components/nativewindui/Sheet';
+import FilterBottomSheet from '~/components/properties/fliter';
 import PropertyItem from '~/components/properties/propertyItem';
 import SelectingToolbar from '~/components/properties/toolbar';
 import { LeftView } from '~/components/properties/topbar';
-import { useGetPropertiesbyCompanyQuery } from '~/store/property/propertyApi';
+import { useLazyGetPropertiesbyAuthorQuery } from '~/store/property/propertyApi';
 import { Property, User } from '~/types';
 import { convertToTime, formatPrice } from '~/utils';
 
@@ -20,17 +25,63 @@ export default function PropertiesListScreen() {
   const [selectedMessages, setSelectedMessages] = React.useState<string[]>([]);
   const [currentUser, setCurrentUser] = React.useState<User>();
   const [propertyall, setPropertyAll] = React.useState([]);
-  const {
-    data: response,
-    isSuccess,
-    isLoading,
-  } = useGetPropertiesbyCompanyQuery({
-    id: currentUser?.id,
-    role: currentUser?.role,
-  });
-  const properties = response?.data?.rows;
+  const [page, setPage] = React.useState(1);
+  const [filters, setFilters] = React.useState({});
+  const [propertieslazy, setPropertiesLazy] = React.useState([]);
+  const [triggerFetch, { isLoading, isFetching, isError, isSuccess, error }] =
+    useLazyGetPropertiesbyAuthorQuery();
 
-  const propertiesList = properties?.map((item: Property) => {
+  const updateFilters = (key: string, value: any) => {
+    setFilters((prevFilters) => ({ ...prevFilters, [key]: value }));
+  };
+  const filterSheetRef = useSheetRef();
+
+  const loadProperties = async () => {
+    try {
+      const result = await triggerFetch({
+        id: currentUser?.id,
+        role: currentUser?.role,
+        page,
+        limit: 10,
+        filters,
+      }).unwrap();
+      setPropertiesLazy((prev) => [...prev, ...result?.data?.rows]); // Append new data to the list
+      setPage((prev) => prev + 1);
+    } catch (error) {
+      console.error('Error fetching properties:', error);
+    }
+  };
+
+  const fetchDataOnFilter = async () => {
+    try {
+      const result = await triggerFetch({
+        id: currentUser?.id,
+        role: currentUser?.role,
+        page: 1,
+        limit: 10,
+        filters,
+      }).unwrap();
+
+      setPropertiesLazy([...result?.data?.rows]); // Update the list immutably
+      setPage(() => 1); // Ensure the page resets correctly
+    } catch (error) {
+      console.error('Error fetching properties:', error);
+    }
+  };
+
+  // const {
+  //   data: response,
+  //   isSuccess,
+  //   isLoading,
+  //   isError,
+  //   error,
+  // } = useGetPropertiesbyCompanyQuery({
+  //   id: currentUser?.id,
+  //   role: currentUser?.role,
+  // });
+  // const properties = response?.data?.rows;
+
+  const propertiesList = propertieslazy?.map((item: Property) => {
     return {
       id: item?._id,
       contact: false,
@@ -49,6 +100,10 @@ export default function PropertiesListScreen() {
       price: item?.price,
     };
   });
+
+  const openFilterSheet = () => {
+    return filterSheetRef.current?.present();
+  };
 
   React.useEffect(() => {
     const saveData = async (key: string, value: any) => {
@@ -114,26 +169,56 @@ export default function PropertiesListScreen() {
   if (isLoading) {
     return <LoadingScreen />;
   }
-  if (isLoading) {
-    return <NotfoundScreen />;
+  if (isSuccess && !isLoading && isError) {
+    return <FetchMessageScreen message={error?.errors} />;
   }
+  // if (isSuccess && !isLoading && !isError && propertiesList?.length === 0) {
+  //   return <FetchMessageScreen message="Not founds properties" />;
+  // }
 
   return (
     <>
       <SafeAreaView>
-        <View className="mx-2 flex-row">
+        <View className="mx-2 flex-row items-center justify-between py-3">
           <LeftView isSelecting={isSelecting} setIsSelecting={onIsSelectingChange} />
+          <View>
+            <Button onPress={openFilterSheet}>
+              <View className="flex-row items-center gap-2">
+                <Text>
+                  <Ionicons name="filter-circle-outline" size={20} color="#fff" />
+                </Text>
+                <Text className="font-semibold text-white">Filters</Text>
+              </View>
+            </Button>
+            <FilterBottomSheet
+              sheetRef={filterSheetRef}
+              updateFilters={updateFilters}
+              fetchDataonFilter={fetchDataOnFilter}
+            />
+          </View>
         </View>
       </SafeAreaView>
-      <List
-        data={propertiesList}
-        extraData={[isSelecting, selectedMessages]}
-        contentInsetAdjustmentBehavior="automatic"
-        ListFooterComponent={isSelecting ? <View className="h-[46px]" /> : undefined}
-        estimatedItemSize={88}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-      />
+      {isSuccess && !isLoading && !isError && propertiesList?.length === 0 ? (
+        <FetchMessageScreen message="Not founds properties" />
+      ) : (
+        <List
+          data={propertiesList}
+          extraData={[isSelecting, selectedMessages]}
+          contentInsetAdjustmentBehavior="automatic"
+          ListFooterComponent={
+            isFetching ? (
+              <ActivityIndicator style={{ marginTop: 5 }} />
+            ) : (
+              <Text style={{ textAlign: 'center', padding: 10 }}>No more data</Text>
+            )
+          }
+          estimatedItemSize={10}
+          keyExtractor={(item, index) => item._id || `property-${index}`}
+          renderItem={renderItem}
+          onEndReached={loadProperties}
+          onEndReachedThreshold={0.5}
+        />
+      )}
       {isSelecting && <SelectingToolbar hasSelectedAMessage={selectedMessages.length > 0} />}
     </>
   );
