@@ -4,7 +4,9 @@ import * as React from 'react';
 import { Image, Platform, StyleSheet, TouchableOpacity, View, type ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
 
+import { Button } from '../nativewindui/Button';
 import { renderIosContextMenuPreview } from './contextmenu-preview';
+import EditPropertiesModal from './edit-properties';
 import Swipeable from './property-swipeable';
 import {
   CONTEXT_MENU_ITEMS,
@@ -23,6 +25,7 @@ import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { Property } from '~/types';
 import { formatNumberCommas, formatPrice } from '~/utils';
 
 export default function PropertyItem({
@@ -31,15 +34,20 @@ export default function PropertyItem({
   setSelectedMessages,
   isSelecting,
   checkboxContainerStyle,
+  property,
+  clear,
 }: {
   info: ListRenderItemInfo<(typeof ITEMS)[number]>;
   selectedMessages: string[];
   setSelectedMessages: React.Dispatch<React.SetStateAction<string[]>>;
   isSelecting: boolean;
   checkboxContainerStyle: ViewStyle;
+  property?: Property;
+  clear?: () => void;
 }) {
   const { colors } = useColorScheme();
   const bottomSheetModalRef = useSheetRef();
+  const editsheetRef = useSheetRef();
 
   function onListItemPress() {
     if (isSelecting) {
@@ -141,8 +149,19 @@ export default function PropertyItem({
       </View>
       <Sheet ref={bottomSheetModalRef} snapPoints={['50%']}>
         <BottomSheetView className="flex-1 items-center justify-start p-3">
-          <View className="mb-5">
-            <Text className="text-[20px] font-bold">Property Details</Text>
+          <View className="w-full flex-row justify-between">
+            <View className="mb-5">
+              <Text className="text-[20px] font-bold">Property Details</Text>
+            </View>
+            <View className="mb-5">
+              <Button
+                size="sm"
+                onPress={() => {
+                  editsheetRef.current?.present();
+                }}>
+                <Text>Edit</Text>
+              </Button>
+            </View>
           </View>
 
           <View className="w-full flex-row justify-between gap-2">
@@ -210,6 +229,7 @@ export default function PropertyItem({
           </View>
         </BottomSheetView>
       </Sheet>
+      <EditPropertiesModal sheetRef={editsheetRef} property={info.item} clearfunc={clear} />
     </Swipeable>
   );
 }

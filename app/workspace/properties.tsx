@@ -28,6 +28,7 @@ export default function PropertiesListScreen() {
   const [page, setPage] = React.useState(1);
   const [filters, setFilters] = React.useState({});
   const [propertieslazy, setPropertiesLazy] = React.useState([]);
+
   const [triggerFetch, { isLoading, isFetching, isError, isSuccess, error }] =
     useLazyGetPropertiesbyAuthorQuery();
 
@@ -90,18 +91,6 @@ export default function PropertiesListScreen() {
     }
   };
 
-  // const {
-  //   data: response,
-  //   isSuccess,
-  //   isLoading,
-  //   isError,
-  //   error,
-  // } = useGetPropertiesbyCompanyQuery({
-  //   id: currentUser?.id,
-  //   role: currentUser?.role,
-  // });
-  // const properties = response?.data?.rows;
-
   const propertiesList = propertieslazy?.map((item: Property) => {
     return {
       id: item?._id,
@@ -119,6 +108,15 @@ export default function PropertiesListScreen() {
       property_owner: item?.property_owner,
       category: item?.category,
       price: item?.price,
+      author_info: {
+        username: item?.author_info?.name,
+        profile_picture: item?.author_info?.profile_picture,
+        author_id: item?.author_info?.author_id,
+      },
+      listedBy: { _id: item?.listedBy?._id },
+      property_author: {
+        _id: item?.property_author?._id,
+      },
     };
   });
 
@@ -174,6 +172,7 @@ export default function PropertiesListScreen() {
           isSelecting={isSelecting}
           selectedMessages={selectedMessages}
           setSelectedMessages={setSelectedMessages}
+          clear={clearFilter}
         />
       );
     },

@@ -49,6 +49,7 @@ export type Property = {
   author_info: {
     name: string;
     profile_picture: string;
+    author_id: string;
   };
   property_author: {
     _id: string;

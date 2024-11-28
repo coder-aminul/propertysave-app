@@ -21,12 +21,16 @@ type ImageUploadType = {
   isSuccess: boolean;
   iosClass?: string;
   mode: string;
+  dbimage?: string;
+  editmode?: boolean;
 };
 
 const ImageUpload = ({
   isSuccess = false,
   iosClass = 'ios:mt-8',
   mode = 'agent',
+  dbimage,
+  editmode = false,
 }: ImageUploadType) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -95,6 +99,14 @@ const ImageUpload = ({
               {selectedImage ? (
                 <View className="flex-col items-center justify-center">
                   <Image source={{ uri: selectedImage?.uri }} style={styles.imagePreview} />
+                  <Text className="text-sm text-gray-400">Tap here to change the image</Text>
+                </View>
+              ) : dbimage !== '' ? (
+                <View className="flex-col items-center justify-center">
+                  <Image
+                    source={{ uri: `https://prosave.apiservicehub.com/${dbimage}` }}
+                    style={styles.imagePreview}
+                  />
                   <Text className="text-sm text-gray-400">Tap here to change the image</Text>
                 </View>
               ) : (

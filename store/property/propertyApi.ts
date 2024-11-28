@@ -44,6 +44,14 @@ export const propertyApi = apiSlice
         },
         providesTags: ['properties'],
       }),
+      editProperty: builder.mutation({
+        query: ({ id, data }) => ({
+          url: `/properties/${id}`,
+          method: 'PUT',
+          body: data,
+        }),
+        invalidatesTags: (res, err, arg) => ['properties', { type: 'property', id: arg._id }],
+      }),
     }),
   });
 
@@ -54,4 +62,5 @@ export const {
   useGetPropertiesbyCompanyQuery,
   useGetPropertiesbyAuthorQuery,
   useLazyGetPropertiesbyAuthorQuery,
+  useEditPropertyMutation,
 } = propertyApi;
