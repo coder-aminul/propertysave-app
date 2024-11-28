@@ -38,7 +38,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.myexpoapp",
@@ -52,16 +54,19 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.anonymous.myexpoapp",
-      "permissions": []
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "extra": {
       "router": {
         "origin": false
       },
       "eas": {
-        "projectId": "62aeed52-e6c3-4721-8ef0-a9889191eceb"
+        "projectId": "2b477cc6-99ff-4d04-9880-f3e11e2a88a0"
       }
     },
-    "jsEngine": "hermes"
+    "jsEngine": "hermes",
+    "owner": "aminulislammd96"
   }
 }
