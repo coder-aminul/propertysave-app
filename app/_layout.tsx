@@ -25,6 +25,7 @@ export {
   ErrorBoundary,
 } from 'expo-router';
 
+//Root Layouts
 export default function RootLayout() {
   useInitialAndroidBarSync();
   const { colorScheme, isDarkColorScheme } = useColorScheme();
